@@ -6,41 +6,33 @@ services:
   # 1. FRONTEND (REACT - VISTA)
   frontend-angel:
     container_name: frontend-angel
-    # Construye la imagen usando el Dockerfile en la carpeta 'frontend-angel'
+    # ********** CORRECCIÓN: Apunta a la carpeta './frontend' **********
     build:
-      context: ./frontend-angel
+      context: ./frontend 
       dockerfile: Dockerfile
-    # Mapea el puerto del host (3000) al contenedor (3000)
+    # *****************************************************************
     ports:
       - "3000:3000"
-    # El Frontend necesita que el Backend esté listo antes de iniciar
     depends_on:
       - backend-vera
-    # El Frontend y Backend se comunican a través de la red interna
     networks:
       - app-net
 
   # 2. BACKEND (NODE.JS / EXPRESS - API)
   backend-vera:
     container_name: backend-vera
-    # Construye la imagen usando el Dockerfile en la carpeta 'backend'
     build:
       context: ./backend
       dockerfile: Dockerfile
-    # Mapea el puerto del host (5000) al contenedor (5000)
     ports:
       - "5000:5000"
-    # Variables de entorno inyectadas al contenedor Node.js
     environment:
-      # HOST de la BD: Usa el nombre del servicio de la BD en la red interna
       DB_HOST: db-angel
-      DB_USER: root             # Tu usuario
-      DB_PASS: chame0104        # Tu contraseña
-      DB_NAME: chame_db         # Tu nombre de base de datos
+      DB_USER: root
+      DB_PASS: chame0104
+      DB_NAME: chame_db
       PORT: 5000
-      # Define el entorno de producción para que no intente cargar el .env interno
       NODE_ENV: production
-    # El Backend debe esperar a que la BD esté disponible
     depends_on:
       - db-angel
     networks:
@@ -50,27 +42,25 @@ services:
   db-angel:
     container_name: db-angel
     image: mysql:8.0
-    # Mapea el puerto estándar de MySQL (3306)
     ports:
       - "3306:3306"
     environment:
-      # Credenciales para la configuración inicial de MySQL
       MYSQL_ROOT_PASSWORD: chame0104
       MYSQL_DATABASE: chame_db
-    # Configura la persistencia de datos usando el volumen definido abajo
     volumes:
+      # 1. Persistencia de datos
       - mysql_data_volume:/var/lib/mysql
+      # 2. Monta el script SQL para la inicialización automática (Crea la tabla 'people')
+      - ./mysql-init:/docker-entrypoint-initdb.d
     networks:
       - app-net
 
 # --- VOLÚMENES ---
-# Define el volumen persistente con nombre para la base de datos
 volumes:
   mysql_data_volume:
     driver: local
 
 # --- REDES ---
-# Define la red interna para que los contenedores se comuniquen por nombre de servicio
 networks:
   app-net:
     driver: bridge
