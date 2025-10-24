@@ -1,7 +1,7 @@
 // frontend-angel/src/services/UserService.js
 
 // Usamos ruta relativa, la URL base se configura con el proxy de React o Docker Compose.
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://backend-vera:5000/api';
 
 const UserService = {
     // READ ALL
