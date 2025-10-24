@@ -12,10 +12,19 @@ const apiRoutes = require('./routes/apiRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000; 
-// ... (resto del código)
 
-// Middleware
-app.use(cors()); 
+// Configuración detallada de CORS
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN || 'http://54.205.62.54:3000', // Origen permitido (tu frontend)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'], // Headers permitidos
+    credentials: true, // Permite credenciales
+    maxAge: 86400, // Tiempo de cache preflight en segundos (24 horas)
+    optionsSuccessStatus: 200 // Para navegadores antiguos que no soportan 204
+};
+
+// Aplicar CORS con las opciones configuradas
+app.use(cors(corsOptions));
 app.use(express.json()); 
 
 // Monta las rutas de la API en el prefijo /api
